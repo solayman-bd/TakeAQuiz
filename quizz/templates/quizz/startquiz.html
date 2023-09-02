@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ block.super }} - Start Quiz{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-4">Quiz Questions</h1>
+
+{% if questions %}
+    <div id="quiz-timer" class="text-xl font-semibold mb-2 text-red-500">Time Left: {{ quiz_time }} seconds</div>
+    <form id="quiz-form" method="post" action="{% url 'quizsubmit' %}">
+        {% csrf_token %}
+        <input type="hidden" name="marks" id="marks" value="0">
+        <input type="hidden" name="total_time" id="total_time" value="{{ quiz_time }}">
+        <input type="hidden" name="selected_quiz" id="selected_quiz" value="{{ quiz.title }}">
+        <input type="hidden" name="completion_time" id="completion_time" value="0">
+    <ol class="list-decimal space-y-4">
+        <ol class="list-decimal space-y-4">
+            {% for question in questions %}
+                <li>
+                    <div class="bg-gray-800 p-4 border border-gray-600 rounded-lg">
+                        <h2 class="text-xl font-semibold text-white">{{ question.text }}</h2>
+                        <ul class="mt-2">
+                            {% for option in question.option_set.all %}
+                                <li>
+                                    <label class="block cursor-pointer text-gray-300">
+                                        <input type="radio" name="question_{{ question.id }}" value="{{ option.id }}" onclick="checkAnswer({{ question.id }},{{question.point_value}}, {{ option.is_correct|yesno:"true,false" }}); disableOptions({{ question.id }});">
+                                        {{ option.text }}
+                                    </label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <div id="feedback-{{ question.id }}" class="mt-2 text-gray-500"></div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ol>
+        <button onclick="onSubmitUpdate()" type="submit" class="mt-4 bg-blue-500 text-white font-semibold px-4 py-2 rounded hover:bg-blue-600 transition duration-300 ease-in-out">
+            Submit Quiz
+        </button>
+    </form>
+{% else %}
+    <p class="text-gray-400">No questions available for this quiz.</p>
+{% endif %}
+
+<script>
+var marks=0;
+// JavaScript for countdown timer
+var quizTime = {{ quiz_time }};
+var timerDisplay = document.getElementById('quiz-timer');
+
+function startTimer() {
+    var timer = setInterval(function() {
+        quizTime--;
+        if (quizTime <= 0) {
+            clearInterval(timer);
+            timerDisplay.textContent = 'Time Expired';
+            onSubmitUpdate();
+            var quizForm = document.getElementById('quiz-form');
+            quizForm.submit();
+        } else {
+            timerDisplay.textContent = 'Time Left: ' + quizTime + ' seconds';
+        }
+    }, 1000);
+}
+
+startTimer();
+
+const onSubmitUpdate=()=>{
+    document.getElementById('marks').value = marks;
+    document.getElementById('completion_time').value = {{ quiz_time }}-quizTime;
+}
+
+// JavaScript function to check the selected answer and disable options
+function checkAnswer(questionId, val, isCorrect) {
+    var selectedOption = document.querySelector('input[name="question_' + questionId + '"]:checked');
+    var feedbackDiv = document.getElementById('feedback-' + questionId);
+    
+    if (selectedOption) {
+        if (isCorrect === true) {
+            feedbackDiv.textContent = 'Correct!';
+            feedbackDiv.style.color = 'green';
+            marks=marks+val;
+        } else {
+            feedbackDiv.textContent = 'Incorrect.'
+            feedbackDiv.style.color = 'red';
+        }
+    }
+}
+
+// JavaScript function to disable radio options
+function disableOptions(questionId) {
+    var options = document.querySelectorAll('input[name="question_' + questionId + '"]');
+    options.forEach(function(option) {
+        option.disabled = true;
+        option.parentElement.style.filter = 'blur(3px)'
+    });
+}
+
+</script>
+{% endblock %}

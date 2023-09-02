@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ block.super }} - Quizzes{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-r from-indigo-700 via-blue-900 to-purple-800 p-4 rounded-lg">
+    <h1 class="text-3xl font-semibold text-white mb-4">Select a Quiz</h1>
+    {% if quizzes %}
+    <ul class="space-y-4">
+        {% for quiz in quizzes %}
+        <li>
+            <div
+                class="block p-4 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 transition duration-300 ease-in-out">
+                <h2 class="text-xl font-semibold text-white">{{ quiz.title }}</h2>
+                <p class="text-gray-300">{{ quiz.description }}</p>
+                {% if quiz.has_time_limit %}
+                <p class="text-red-400 mt-2">Time Limit: {{ quiz.time_limit_seconds }} seconds</p>
+                {% endif %}
+                <a href="{% url 'startquiz' category_id=category_id quiz_id=quiz.id %}" class="block mt-4">
+                    <button
+                        class="bg-blue-500 text-white font-semibold px-4 py-2 rounded hover:bg-blue-600 transition duration-300 ease-in-out">
+                        Start Quiz
+                    </button>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-gray-400">No quizzes available in this category.</p>
+    {% endif %}
+
+</div>
+<!-- Add more HTML and template logic to handle quiz selection and display -->
+{% endblock %}
