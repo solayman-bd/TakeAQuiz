@@ -6,10 +6,6 @@
 <h1 class="text-2xl font-semibold mb-4">Quiz Questions</h1>
 
 {% if questions %}
-    <div class="mb-4">
-        <progress id="quiz-progress" max="{{ questions|length }}" value="0"></progress>
-        <p id="progress-label">Question 0/{{ questions|length }}</p>
-    </div>
     <div id="quiz-timer" class="text-xl font-semibold mb-2 text-red-500">Time Left: {{ quiz_time }} seconds</div>
     <form id="quiz-form" method="post" action="{% url 'quizsubmit' %}">
         {% csrf_token %}
@@ -17,6 +13,7 @@
         <input type="hidden" name="total_time" id="total_time" value="{{ quiz_time }}">
         <input type="hidden" name="selected_quiz" id="selected_quiz" value="{{ quiz.title }}">
         <input type="hidden" name="completion_time" id="completion_time" value="0">
+    <ol class="list-decimal space-y-4">
         <ol class="list-decimal space-y-4">
             {% for question in questions %}
                 <li>
@@ -47,11 +44,9 @@
 
 <script>
 var marks=0;
-var currentQuestion = 0;  // Initialize the current question counter
+// JavaScript for countdown timer
 var quizTime = {{ quiz_time }};
 var timerDisplay = document.getElementById('quiz-timer');
-var progressBar = document.getElementById('quiz-progress');
-var progressLabel = document.getElementById('progress-label');
 
 function startTimer() {
     var timer = setInterval(function() {
@@ -70,11 +65,12 @@ function startTimer() {
 
 startTimer();
 
-const onSubmitUpdate = () => {
+const onSubmitUpdate=()=>{
     document.getElementById('marks').value = marks;
-    document.getElementById('completion_time').value = {{ quiz_time }} - quizTime;
+    document.getElementById('completion_time').value = {{ quiz_time }}-quizTime;
 }
 
+// JavaScript function to check the selected answer and disable options
 function checkAnswer(questionId, val, isCorrect) {
     var selectedOption = document.querySelector('input[name="question_' + questionId + '"]:checked');
     var feedbackDiv = document.getElementById('feedback-' + questionId);
@@ -83,24 +79,20 @@ function checkAnswer(questionId, val, isCorrect) {
         if (isCorrect === true) {
             feedbackDiv.textContent = 'Correct!';
             feedbackDiv.style.color = 'green';
-            marks = marks + val;
+            marks=marks+val;
         } else {
-            feedbackDiv.textContent = 'Incorrect.';
+            feedbackDiv.textContent = 'Incorrect.'
             feedbackDiv.style.color = 'red';
         }
     }
-    
-    // Update progress
-    currentQuestion++;
-    progressBar.value = currentQuestion;
-    progressLabel.textContent = 'Question ' + currentQuestion + '/' + {{ questions|length }};
 }
 
+// JavaScript function to disable radio options
 function disableOptions(questionId) {
     var options = document.querySelectorAll('input[name="question_' + questionId + '"]');
     options.forEach(function(option) {
         option.disabled = true;
-        option.parentElement.style.filter = 'blur(3px)';
+        option.parentElement.style.filter = 'blur(3px)'
     });
 }
 

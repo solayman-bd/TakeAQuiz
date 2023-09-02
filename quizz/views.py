@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Category, Quiz, Question, Option, QuizAttempt
 from django.http import JsonResponse
@@ -80,18 +80,20 @@ def startquiz(request, category_id, quiz_id):
     # Pass the questions queryset to the template
     return render(request, 'quizz/startquiz.html', {'questions': questions, 'user': user,'quiz_time':quiz_time, 'quiz':selected_quiz})
 
-
 @login_required(login_url='login')
 def quizsubmit(request):
-    if request.method=="POST":
-        submission_data={
-            "marks":request.POST["marks"],
-            "selected_quiz":request.POST["selected_quiz"],
-            "total_time":request.POST["total_time"],
-            "completion_time":request.POST["completion_time"]
+    user = request.user  # Define user outside the conditional block
+    submission_data = {}
+
+    if request.method == "POST":
+        submission_data = {
+            "marks": request.POST["marks"],
+            "selected_quiz": request.POST["selected_quiz"],
+            "total_time": request.POST["total_time"],
+            "completion_time": request.POST["completion_time"]
         }
-        print("Completion Time:",request.POST["completion_time"])
-        print("Marks:",request.POST["marks"])    
-        print("Total Time:",request.POST["total_time"])
-        print("Selected Quiz:",request.POST["selected_quiz"])
-    return render(request, 'quizz/quizsubmit.html', )
+    else:
+        return redirect('login')
+
+    return render(request, 'quizz/quizsubmit.html', {"submission_data": submission_data, "user": user})
+
