@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ block.super }} - Profile{% endblock %}
+
+{% block content %}
+<h2 class="text-3xl font-semibold mb-4">Profile</h2>
+<p>Welcome, {{ user.username }}!</p>
+<!-- Add other profile information here -->
+<a href="{% url 'logout' %}" class="mt-4 text-cyan-300 hover:underline">Logout</a>
+{% endblock %}
