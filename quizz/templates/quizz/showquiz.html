@@ -7,7 +7,7 @@
     <h1 class="text-3xl font-semibold text-white mb-4">Select a Quiz</h1>
     {% if quizzes %}
     <ul class="space-y-4">
-        {% for quiz in quizzes %}
+        {% for quiz, avg_rating in quizzes %}
         <li>
             <div
                 class="block p-4 bg-gray-800 border border-gray-600 rounded-lg hover:bg-gray-700 transition duration-300 ease-in-out">
@@ -15,6 +15,11 @@
                 <p class="text-gray-300">{{ quiz.description }}</p>
                 {% if quiz.has_time_limit %}
                 <p class="text-red-400 mt-2">Time Limit: {{ quiz.time_limit_seconds }} seconds</p>
+                {% endif %}
+                {% if avg_rating is not None %}
+                <p class="text-yellow-400 mt-2">Average Rating: {{ avg_rating }}/7</p>
+                {% else %}
+                <p class="text-gray-400 mt-2">No ratings yet</p>
                 {% endif %}
                 <a href="{% url 'startquiz' category_id=category_id quiz_id=quiz.id %}" class="block mt-4">
                     <button
@@ -29,6 +34,5 @@
     {% else %}
     <p class="text-gray-400">No quizzes available in this category.</p>
     {% endif %}
-
 </div>
 {% endblock %}

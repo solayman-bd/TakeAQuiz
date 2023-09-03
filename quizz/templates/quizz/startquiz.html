@@ -23,6 +23,7 @@
                     <div class="bg-gray-800 p-4 border border-gray-600 rounded-lg">
                         <h2 class="text-xl font-semibold text-white">{{ question.text }}</h2>
                         <ul class="mt-2">
+                            {% if question.option_set.all %}
                             {% for option in question.option_set.all %}
                                 <li>
                                     <label class="block cursor-pointer text-gray-300">
@@ -31,6 +32,9 @@
                                     </label>
                                 </li>
                             {% endfor %}
+                            {% else %}
+                            <p>There is no option added</p>
+                            {% endif %}
                         </ul>
                         <div id="feedback-{{ question.id }}" class="mt-2 text-gray-500"></div>
                     </div>

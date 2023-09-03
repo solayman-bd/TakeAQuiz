@@ -3,7 +3,7 @@ from .models import Category, Quiz, Question, Option, QuizAttempt,QuizRating
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-
+from django.db.models import Avg, F, Value
 
 # def allquiz(request):
 #     if request.method == "GET":
@@ -59,13 +59,28 @@ def takequiz(request):
     user = request.user
     return render(request, 'quizz/takequiz.html', {'categories': categories,'user':user})
 
+  
+#     quizzes = Quiz.objects.filter(category__id=category_id)
+#     user = request.user
+ 
+#     return render(request, 'quizz/showquiz.html', {'quizzes': quizzes, 'user':user, 'category_id': category_id})
+
 @login_required(login_url='login')
 def showquiz(request, category_id):
-  
-    quizzes = Quiz.objects.filter(category__id=category_id)
     user = request.user
- 
-    return render(request, 'quizz/showquiz.html', {'quizzes': quizzes, 'user':user, 'category_id': category_id})
+    quizzes = Quiz.objects.filter(category__id=category_id)
+    quizzes_with_rating = []
+
+    for quiz in quizzes:
+        quiz_rating = QuizRating.objects.filter(quiz=quiz)
+        avg_rating = quiz_rating.aggregate(Avg('rating'))['rating__avg']
+        quizzes_with_rating.append((quiz, avg_rating))
+    quizzes_with_rating.sort(key=lambda x: (x[1] is not None, x[1]), reverse=True)
+    sorted_quizzes = [quiz for quiz, _ in quizzes_with_rating]
+
+    return render(request, 'quizz/showquiz.html', {'quizzes': quizzes_with_rating, 'user': user, 'category_id': category_id})
+
+
 
 @login_required(login_url='login')
 def startquiz(request, category_id, quiz_id):

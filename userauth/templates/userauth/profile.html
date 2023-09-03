@@ -14,21 +14,74 @@
 
   <div class="mt-8">
     <h3 class="text-2xl font-semibold mb-4">Quiz Attempt History</h3>
-    <ul class="space-y-4">
-        {% for attempt in quiz_history %}
-          <li class="bg-gray-500 text-white p-4 rounded-lg">
-            <strong>{{ attempt.quiz.title }}</strong>
-            <p class="text-gray-200">Completion Time: {{ attempt.completion_time }} seconds</p>
-            {% if attempt.score %}
-              <p class="text-yellow-300">Score: {{ attempt.score }} out of {{ attempt.quiz.total_marks }}</p>
-            {% else %}
-              <p class="text-red-300">Score: Not yet scored</p>
-            {% endif %}
-          </li>
-        {% empty %}
-          <li class="text-gray-400">No quiz attempts yet.</li>
-        {% endfor %}
-      </ul>
+    <ul class="space-y-4" id="quiz-attempts">
+      {% for attempt in quiz_history %}
+        <li class="bg-gray-500 text-white p-4 rounded-lg">
+          <strong>{{ attempt.quiz.title }}</strong>
+          <p class="text-gray-200">Completion Time: {{ attempt.completion_time }} seconds</p>
+          {% if attempt.score %}
+            <p class="text-yellow-300">Score: {{ attempt.score }} out of {{ attempt.quiz.total_marks }}</p>
+          {% else %}
+            <p class="text-red-300">Score: Not yet scored</p>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li class="text-gray-400">No quiz attempts yet.</li>
+      {% endfor %}
+    </ul>
+    
+    <!-- Pagination -->
+    <div class="mt-4">
+      <button id="prev-page" class="text-cyan-300 hover:underline" disabled>Previous</button>
+      <span id="page-info" class="text-gray-400"></span>
+      <button id="next-page" class="text-cyan-300 hover:underline" disabled>Next</button>
+    </div>
   </div>
 </div>
+
+<!-- JavaScript for pagination -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const attemptsPerPage = 3;
+    let currentPage = 1;
+    const quizAttempts = document.getElementById('quiz-attempts');
+    const prevPageBtn = document.getElementById('prev-page');
+    const nextPageBtn = document.getElementById('next-page');
+    const pageInfo = document.getElementById('page-info');
+    const attempts = quizAttempts.querySelectorAll('li');
+    const totalAttempts = attempts.length;
+    const totalPages = Math.ceil(totalAttempts / attemptsPerPage);
+    
+    function showPage(page) {
+      const start = (page - 1) * attemptsPerPage;
+      const end = page * attemptsPerPage;
+      attempts.forEach((attempt, index) => {
+        if (index >= start && index < end) {
+          attempt.style.display = 'block';
+        } else {
+          attempt.style.display = 'none';
+        }
+      });
+      pageInfo.textContent = `Page ${page} of ${totalPages}`;
+      prevPageBtn.disabled = page === 1;
+      nextPageBtn.disabled = page === totalPages;
+    }
+    
+    showPage(currentPage);
+    
+    prevPageBtn.addEventListener('click', function() {
+      if (currentPage > 1) {
+        currentPage--;
+        showPage(currentPage);
+      }
+    });
+    
+    nextPageBtn.addEventListener('click', function() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        showPage(currentPage);
+      }
+    });
+  });
+</script>
 {% endblock %}
