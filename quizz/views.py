@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Category, Quiz, Question, Option, QuizAttempt
+from .models import Category, Quiz, Question, Option, QuizAttempt,QuizRating
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
@@ -76,7 +76,6 @@ def startquiz(request, category_id, quiz_id):
     quiz_time=0
     if selected_quiz.has_time_limit==True:
         quiz_time=selected_quiz.time_limit_seconds
-
     return render(request, 'quizz/startquiz.html', {'questions': questions, 'user': user,'quiz_time':quiz_time, 'quiz':selected_quiz})
 
 
@@ -86,6 +85,10 @@ def quizsubmit(request):
         quiz_id=request.POST["selected_quiz"]
         user = request.user
         quiz = get_object_or_404(Quiz, id=quiz_id)
+        rating=False
+        rating_ins=QuizRating.objects.filter(user=user,quiz=quiz)
+        if  rating_ins.exists():
+            rating=rating_ins[0]
         time_limit_seconds = request.POST["total_time"]
         completion_time = request.POST["completion_time"]
         score = request.POST["marks"]
@@ -97,14 +100,12 @@ def quizsubmit(request):
             score=score,
         )
         quiz_attempt.save()
-        print("Saved successfully")
-        
         submission_data = {
-            "total_marks":quiz.total_marks,
             "marks": score,
-            "selected_quiz": quiz.title,
+            "quiz": quiz,
             "total_time": time_limit_seconds,
             "completion_time": completion_time,
+            'rating':rating
         }
         
         return render(request, 'quizz/quizsubmit.html', {"submission_data": submission_data, "user": user})
@@ -112,8 +113,24 @@ def quizsubmit(request):
         return redirect('login')
     
 
+@login_required(login_url='login')
+def quizrating(request):
+    if request.method == "POST":
+        user = request.user
+        quiz_id = request.POST["quiz"]
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        rating = request.POST["rating"]
+        quiz_rating = QuizRating(
+            user=user,
+            quiz=quiz,
+            rating=rating
+        )
+        quiz_rating.save()
+        return render(request, 'quizz/success.html', {'user': user, 'quiz': quiz, 'rating': rating})
+    else:
+        return redirect('home')
+
+@login_required(login_url='login')
 def leaderboard(request):
-   
     top_attempts = QuizAttempt.objects.filter(score__isnull=False).order_by('-score')[:10]
-    
     return render(request, 'quizz/leaderboard.html', {'top_attempts': top_attempts})

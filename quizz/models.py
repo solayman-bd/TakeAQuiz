@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.core.validators import MaxValueValidator, MinValueValidator
 class Category(models.Model):
     name = models.CharField(max_length=255)
 
@@ -66,3 +66,17 @@ class Leaderboard(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s top score in {self.quiz.title}"
+    
+class QuizRating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(7)]
+    )
+    class Meta:
+        unique_together = ['user', 'quiz']
+
+    def __str__(self):
+        return f"Rating by {self.user.username} for {self.quiz.title}"
