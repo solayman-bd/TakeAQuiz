@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}QuizZone{% endblock %}</title>
 
-    <!-- Include Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -15,17 +14,20 @@
     <nav class="bg-gray-800 p-4">
         <div class="container mx-auto flex justify-between items-center">
             <a class="text-cyan-300 text-3xl font-semibold transition duration-300 ease-in-out transform hover:scale-105"
-                href="/">QuizZone</a>
+                href="/">TakeAQuiz</a>
             <ul class="flex space-x-4">
                 {% if user.is_authenticated %}
                 <li><a href="{% url 'profile' %}"
                         class="text-gray-300 hover:text-cyan-300 transition duration-300 ease-in-out transform hover:scale-105">Profile</a>
                 </li>
+                <li><a href="{% url 'leaderboard' %}"
+                    class="text-gray-300 hover:text-cyan-300 transition duration-300 ease-in-out transform hover:scale-105">LeaderBoard</a>
+                 </li>
                 <li><a href="{% url 'logout' %}"
                         class="text-gray-300 hover:text-cyan-300 transition duration-300 ease-in-out transform hover:scale-105">Logout</a>
                 </li>
                 <li><a href="{% url 'takequiz' %}"
-                        class="text-gray-300 hover:text-cyan-300 transition duration-300 ease-in-out transform hover:scale-105">Quizzes</a>
+                        class="text-gray-300 hover:text-cyan-300 transition duration-300 ease-in-out transform hover:scale-105">Start Quiz</a>
                 </li>
                 {% else %}
                 <li><a href="{% url 'home' %}"

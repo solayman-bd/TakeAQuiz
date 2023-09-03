@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect
 from .forms import RegistrationForm
 from django.contrib.auth.decorators import login_required
+from quizz.models import QuizAttempt
 
 def common_auth_view(request,form_class, form_instance, template_name, success_redirect):
     if request.method == 'POST':
@@ -33,11 +34,21 @@ def register(request):
     form=RegistrationForm(request.POST)
     return common_auth_view(request,RegistrationForm, form, 'userauth/register.html', 'profile')
 
-@login_required(login_url='login')
+# @login_required(login_url='login')
+# def profile(request):
+#     user = request.user
+#     quiz_history=QuizAttempt.objects.filter(user=user)
+#     return render(request, 'userauth/profile.html', {'user': user},{"quiz_history":quiz_history})
 def profile(request):
     user = request.user
-    return render(request, 'userauth/profile.html', {'user': user})
-
+    quiz_history = QuizAttempt.objects.filter(user=user)
+    
+    context = {
+        'user': user,
+        'quiz_history': quiz_history,
+    }
+    
+    return render(request, 'userauth/profile.html', context)
 
 @login_required(login_url='login')
 def user_logout(request):

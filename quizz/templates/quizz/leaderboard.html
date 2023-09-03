@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ block.super }} - Leaderboard{% endblock %}
+
+{% block content %}
+<h2 class="text-3xl font-semibold mb-4">Leaderboard</h2>
+
+<table class="table-auto">
+  <thead>
+    <tr>
+      <th class="px-4 py-2">Rank</th>
+      <th class="px-4 py-2">User</th>
+      <th class="px-4 py-2">Quiz</th>
+      <th class="px-4 py-2">Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for attempt in top_attempts %}
+      <tr>
+        <td class="border px-4 py-2">{{ forloop.counter }}</td>
+        <td class="border px-4 py-2">{{ attempt.user.username }}</td>
+        <td class="border px-4 py-2">{{ attempt.quiz.title }}</td>
+        <td class="border px-4 py-2">{{ attempt.score }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="4" class="text-center">No leaderboard data available.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="{% url 'home' %}" class="mt-4 text-cyan-300 hover:underline">Back to Home</a>
+{% endblock %}

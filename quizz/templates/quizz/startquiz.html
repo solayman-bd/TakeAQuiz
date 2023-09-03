@@ -15,7 +15,7 @@
         {% csrf_token %}
         <input type="hidden" name="marks" id="marks" value="0">
         <input type="hidden" name="total_time" id="total_time" value="{{ quiz_time }}">
-        <input type="hidden" name="selected_quiz" id="selected_quiz" value="{{ quiz.title }}">
+        <input type="hidden" name="selected_quiz" id="selected_quiz" value="{{ quiz.id}}">
         <input type="hidden" name="completion_time" id="completion_time" value="0">
         <ol class="list-decimal space-y-4">
             {% for question in questions %}
@@ -47,7 +47,7 @@
 
 <script>
 var marks=0;
-var currentQuestion = 0;  // Initialize the current question counter
+var currentQuestion = 0;  
 var quizTime = {{ quiz_time }};
 var timerDisplay = document.getElementById('quiz-timer');
 var progressBar = document.getElementById('quiz-progress');
@@ -90,7 +90,6 @@ function checkAnswer(questionId, val, isCorrect) {
         }
     }
     
-    // Update progress
     currentQuestion++;
     progressBar.value = currentQuestion;
     progressLabel.textContent = 'Question ' + currentQuestion + '/' + {{ questions|length }};
